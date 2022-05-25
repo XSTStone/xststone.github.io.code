@@ -9,6 +9,7 @@
   You should put file `utils` with other files into one same folder, since some functions in `utils` are necessary.
 
 - FEC
+
   For running FEC report codes, you should have  `icarus verilog`. And to finish the report, you should have `gtkwave` to get the time diagram.
 
   For **lab4**, since there is no variant, its code can be used directly without any changes. 
