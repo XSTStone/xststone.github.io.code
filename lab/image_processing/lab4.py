@@ -15,7 +15,7 @@ import utils
 
 filename = "/Users/stone/PycharmProjects/image_processing/lab1_python/char1.jpg"
 filename2 = "/Users/stone/PycharmProjects/image_processing/lab1_python/photo1.jpg"
-filename3 = "/Users/stone/PycharmProjects/image_processing/lab1_python/coins9.png"
+filename3 = "/Users/stone/PycharmProjects/image_processing/lab1_python/my_coins.png"
 
 chinese = cv.imread(filename, cv.IMREAD_GRAYSCALE)
 photo = cv.imread(filename2, cv.IMREAD_GRAYSCALE)
@@ -67,10 +67,7 @@ cv.imshow("Outer contour (dilation - I)", chinese_outer_contour)
 
 # """
 coins = cv.cvtColor(coins_color, cv.COLOR_BGR2GRAY)
-cv.imshow("coins", coins)
-# coins = coins_color
 retval, coins_threshold = cv.threshold(coins, 160, 255, cv.THRESH_BINARY_INV) # Make it change into binary image
-cv.imshow("coins_threshold", coins_threshold)
 kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
 
 # Erode
@@ -79,56 +76,44 @@ cv.imshow("coins_threshold_eroded", coins_threshold_eroded)
 
 # Dilate
 T = np.zeros_like(coins_threshold)
-index = 0
-kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
 while cv.countNonZero(coins_threshold_eroded) < coins_threshold_eroded.size:
-    index += 1
     dilated = cv.dilate(coins_threshold_eroded, kernel, borderType=cv.BORDER_CONSTANT, borderValue=(0))
     closed = cv.morphologyEx(dilated, cv.MORPH_CLOSE, kernel, borderType=cv.BORDER_CONSTANT, borderValue=(0))
     split = cv.subtract(closed, dilated)
     T = cv.bitwise_or(split, T)
-    # cv.imshow(str(index) + "T", T)
     coins_threshold_eroded = dilated
-    # cv.imshow(str(index) + "coins_threshold_eroded", coins_threshold_eroded)
-
-print("index", index)
 
 # Border close
 kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (3, 3))
-cv.imshow("T before close", T)
 T = cv.morphologyEx(T, cv.MORPH_CLOSE, kernel, iterations=14, borderType=cv.BORDER_CONSTANT, borderValue=(255))
 T_eroded = cv.morphologyEx(~T, cv.MORPH_ERODE, kernel, iterations=1)
 T_contour = cv.subtract(~T, T_eroded)
-cv.imshow("T contour", T_contour)
 cv.imshow("T", T)
-# cv.imshow("~T",d ~T)
 
 # Remove border
 coins_threshold = cv.bitwise_and(~T, coins_threshold)
-# coins_threshold[T_contour > 0] = 255
-# cv.imshow("coins_threshold_107", coins_threshold)
+coins_threshold[T_contour > 0] = 255
 result = cv.bitwise_and(coins_threshold, coins)
-# print("dtype", result.dtype)
-# line = np.zeros_like(result, dtype=np.uint8)
-# result[T_contour > 0] = (255, 0, 0)
 
-# cv.imshow("coins threshold", coins_threshold)
 cv.imshow("result", result)
-"""
+# """
 
 #
 # Do part3
 #
-# """
+"""
 coins_gray = cv.cvtColor(coins_color, cv.COLOR_BGR2GRAY)
 ret, thresh = cv.threshold(coins_gray, 0, 255, cv.THRESH_BINARY_INV + cv.THRESH_OTSU)
+cv.imshow("thresh", thresh)
 
 # noise removal
 kernel = np.ones((9, 9), np.uint8)
 opening = cv.morphologyEx(thresh, cv.MORPH_OPEN, kernel, iterations=2)
+cv.imshow("opening", opening)
 
 # sure background area
 sure_bg = cv.dilate(opening, kernel, iterations=3)
+cv.imshow("sure_bg", sure_bg)
 
 # Finding sure foreground area
 dist_transform = cv.distanceTransform(opening, cv.DIST_L2, 5)
@@ -153,7 +138,7 @@ coins_color[markers == -1] = [255, 0, 0]
 
 cv.imshow("Result", coins_color)
 
-# """
+"""
 
 
 utils.end()
